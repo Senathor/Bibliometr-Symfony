@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>
+			{% block title %}{% endblock %}
+		</title>
+		{% block stylesheets %}
+			<link rel="stylesheet" href="/public/main.css?ver=1"/>
+		{% endblock %}
+	</head>
+	<body>
+		<nav>
+			{% if app.user %}
+				<a href="{{ path('home') }}">Strona główna</a>
+				<a href="{{ path('profile') }}">Mój profil</a>
+				{% if app.user.role is same as("admin") %}
+					<a href="{{path('admin')}}">Panel administracji</a>
+				{% endif %}
+				<a href="{{ path('logout') }}">Wyloguj</a>
+			{% else %}
+				<a href="{{ path('home') }}">Strona główna</a>
+				<a href="{{ path('login') }}">Logowanie</a>
+				<a href="{{ path('register') }}">Rejestracja</a>
+			{% endif %}
+		</nav>
+
+		{% if app.user %}
+			<h1>Witaj
+				{{app.user.username}}!</h1>
+		{% endif %}
+		{% block other %}{% endblock %}
+		{% block body %}{% endblock %}
+		{% block javascripts %}{% endblock %}
+	</body>
+</html></body></html>

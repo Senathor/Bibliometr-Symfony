@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block body %}
+	{% include 'profile/profile_links.html.twig' %}
+	<h1>Bibliometr -
+		{{title}}</h1>
+	<div class="container">
+		<div class="container__box fieldset__container">
+			{{ form_start(form) }}
+			<button type="submit">Edytuj!</button>
+			{{ form_row(form.name) }}
+			{{ form_row(form.email) }}
+			{{ form_row(form.afiliacja) }}
+			{{ form_end(form) }}
+		</div>
+	</div>
+{% endblock %}

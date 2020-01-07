@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	Witaj
+	{{app.user.username}}!
+{% endblock %}
+
+{% block body %}
+	<a href="{{path('addPublication') }}" class="button_action">Dodaj publikacje</a>
+	<a href="{{path('myPublications', { 'id': app.user.id }) }}" class="button_action">Moje publikacje</a>
+	<a href="{{path('editProfile', { 'id': app.user.id }) }}" class="button_action">Edytuj moje dane</a>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html.twig" %}
+{% block title %}
+	{{title}}
+{% endblock %}
+{% block body %}
+	<h1>Bibliometr</h1>
+	{{ form_start(form) }}
+	<div class="strona__glowna">
+		<div class="fieldset__container">
+			{{ form_row(form.title) }}
+			{{ form_row(form.authors) }}
+		</div>
+		<div class="fieldset__container">
+			{{ form_row(form.shares) }}
+			{{ form_row(form.points) }}
+			{{ form_row(form.magazine) }}
+		</div>
+		<div class="fieldset__container">
+			{{ form_row(form.conference) }}
+			{{ form_row(form.url) }}
+		</div>
+		<div class="fieldset__container">
+			{{ form_row(form.data_od) }}
+			{{ form_row(form.data_do) }}
+		</div>
+		<div class="fieldset__container">
+			{{ form_row(form.sort) }}
+			{{ form_row(form.order) }}
+		</div>
+		<div class="fieldset__container container__row">
+			{{ form_row(form.nazwabox) }}
+			{{ form_row(form.authorbox) }}
+			{{ form_row(form.sharesbox) }}
+			{{ form_row(form.databox) }}
+			{{ form_row(form.punktybox) }}
+			{{ form_row(form.magazinebox) }}
+			{{ form_row(form.conferencebox) }}
+			{{ form_row(form.urlbox) }}
+			{{ form_widget(form.search) }}
+			{{ form_widget(form.export) }}
+		</div>
+	</div>
+	<hr>
+	<div class="divTable">
+		<div class="divTableBody">
+			<div class="divTableRow">
+				<div class="divTableCell">Wybierz</div>
+				{% if box %}
+					{% if nazwabox %}
+						<div class="divTableCell">Tytuł publikacji</div>
+					{% endif %}
+					{% if authorbox %}
+						<div class="divTableCell">Autorzy</div>
+					{% endif %}
+					{% if sharesbox %}
+						<div class="divTableCell">Udziały</div>
+					{% endif %}
+					{% if databox %}
+						<div class="divTableCell">Data publikacji</div>
+					{% endif %}
+					{% if punktybox %}
+						<div class="divTableCell">Punkty ministerialne</div>
+					{% endif %}
+					{% if magazinebox %}
+						<div class="divTableCell">Konferencja</div>
+					{% endif %}
+					{% if conferencebox %}
+						<div class="divTableCell">Czasopismo</div>
+					{% endif %}
+					{% if urlbox %}
+						<div class="divTableCell">URL/DOI</div>
+					{% endif %}
+				{% else %}
+					<div class="divTableCell">Tytuł publikacji</div>
+					<div class="divTableCell">Autorzy</div>
+					<div class="divTableCell">Udziały</div>
+					<div class="divTableCell">Data publikacji</div>
+					<div class="divTableCell">Punkty ministerialne</div>
+					<div class="divTableCell">Konferencja</div>
+					<div class="divTableCell">Czasopismo</div>
+					<div class="divTableCell">URL/DOI</div>
+				{% endif %}
+				{% if app.user %}
+					<div class="divTableCell">Edytuj</div>
+					<div class="divTableCell">Usuń</div>
+				{% endif %}
+			</div>
+		</div>
+		{% for pub in publications %}
+			<div class="divTableRow">
+				<div class="divTableCell">
+					<input type="checkbox" name="pubid[]" id="pubid" value="{{ pub.getId() }}"/>
+				</div>
+				{% if box %}
+					{% if nazwabox %}
+						<div class="divTableCell">
+							<a href="{{ path('viewPublication', { 'id': pub.getId() }) }}">{{ pub.getTitle() }}</a>
+						</div>
+					{% endif %}
+					{% if authorbox %}
+						<div class="divTableCell">{{ pub.getAuthors() }}</div>
+					{% endif %}
+					{% if sharesbox %}
+						<div class="divTableCell">{{ pub.getShares() }}</div>
+					{% endif %}
+					{% if databox %}
+						<div class="divTableCell">{{ pub.getPublicationDate().format('Y-m-d H:i:s') }}</div>
+					{% endif %}
+					{% if punktybox %}
+						<div class="divTableCell">{{ pub.getPoints() }}</div>
+					{% endif %}
+					{% if magazinebox %}
+						<div class="divTableCell">{{ pub.getConference() }}</div>
+					{% endif %}
+					{% if conferencebox %}
+						<div class="divTableCell">{{ pub.getMagazine() }}</div>
+					{% endif %}
+					{% if urlbox %}
+						<div class="divTableCell">
+							<a href="{{ pub.getUrl() }}">{{ pub.getUrl() }}</a>
+						</div>
+					{% endif %}
+					{% if app.user %}
+						<div class="divTableCell">
+							{% set authors = pub.getAuthors() | split(",") %}
+							{% if authors[0] == app.user.username or app.user.role == "admin" %}
+								<a href="{{ path('editPublication', { 'id': pub.getId() }) }}">Edytuj</a>
+							{% endif %}
+						</div>
+						<div class="divTableCell">
+							{% if app.user.role == "admin" %}
+								<a href="{{ path('deletePublication', { 'id': pub.getId() }) }}">Usuń</a>
+							{% endif %}
+						</div>
+					{% endif %}
+
+				{% else %}
+					<div class="divTableCell">
+						<a href="{{ path('viewPublication', { 'id': pub.getId() }) }}">{{ pub.getTitle() }}</a>
+					</div>
+					<div class="divTableCell">{{ pub.getAuthors() }}</div>
+					<div class="divTableCell">{{ pub.getShares() }}</div>
+					<div class="divTableCell">{{ pub.getPublicationDate().format('Y-m-d') }}</div>
+					<div class="divTableCell">{{ pub.getPoints() }}</div>
+					<div class="divTableCell">{{ pub.getConference() }}</div>
+					<div class="divTableCell">{{ pub.getMagazine() }}</div>
+					<div class="divTableCell">
+						<a href="{{ pub.getUrl() }}">{{ pub.getUrl() }}</a>
+					</div>
+					{% if app.user %}
+						<div class="divTableCell">
+							{% set authors = pub.getAuthors() | split(",") %}
+							{% if authors[0] == app.user.username or app.user.role == "admin" %}
+								<a href="{{ path('editPublication', { 'id': pub.getId() }) }}">Edytuj</a>
+							{% endif %}
+						</div>
+						<div class="divTableCell">
+							{% if app.user.role == "admin" %}
+								<a href="{{ path('deletePublication', { 'id': pub.getId() }) }}">Usuń</a>
+							{% endif %}
+						</div>
+					{% endif %}
+				{% endif %}
+			</div>
+		{% endfor %}
+	</div>
+
+	{{ form_end(form) }}
+{% endblock %}
