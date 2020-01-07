@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block body %}
+	<h1>Bibliometr -
+		{{title}}</h1>
+	<div class="container">
+		<div class="container__box fieldset__container">
+			{{ form_start(form) }}
+			{{ form_row(form.name) }}
+			{{ form_row(form.email) }}
+			{{ form_row(form.afiliacja) }}
+			{{ form_row(form.password.first) }}
+			{{ form_row(form.password.second) }}
+			<button type="submit">Rejestruj!</button>
+			{{ form_end(form) }}
+		</div>
+	</div>
+{% endblock %}
