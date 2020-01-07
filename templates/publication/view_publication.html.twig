@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block body %}
+	{% include 'profile/profile_links.html.twig' %}
+	<h1>Bibliometr -
+		{{title}}</h1>
+	<div class="container">
+		<div class="container__box fieldset__container">
+			<p>Tytuł:
+				{{ pub.getTitle() }}</p>
+			<p>Autorzy:
+				{{ pub.getAuthors() }}</p>
+			<p>Data publikacji:
+				{{ pub.getPublicationDate().format('Y-m-d H:i:s') }}</p>
+			<p>Udziały:
+				{{ pub.getShares() }}</p>
+			<p>Punkty ministerialne:
+				{{ pub.getPoints() }}</p>
+			<p>Czasopismo:
+				{{ pub.getMagazine() }}</p>
+			<p>Czasopismo:
+				{{ pub.getConference() }}</p>
+			<p>URL:
+				<a href="{{ pub.getUrl()}}">{{ pub.getUrl() }}</a>
+			</p>
+		</div>
+	</div>
+{% endblock %}
