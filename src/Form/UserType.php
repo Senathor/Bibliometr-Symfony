@@ -26,7 +26,9 @@ class UserType extends AbstractType
                 ->add('password', PasswordType::class, array(
                     // 'empty_data' => '',
                     // 'always_empty' => false,
-                    // 'required' => false
+                    'required' => false,
+                    'empty_data' => ''
+                    // 'empty_data' => $options["password"]
                 ));
         } else {
             $builder
@@ -55,6 +57,7 @@ class UserType extends AbstractType
             'show_role' => true,
             'role' => "user",
             'edit_profile' => false,
+            'password' => ''
         ));
     }
 }

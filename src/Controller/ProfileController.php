@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Publication;
+use App\Entity\Authors;
 use App\Entity\User;
 use App\Form\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,10 +33,19 @@ class ProfileController extends AbstractController
             ->getRepository(User::class)
             ->find($id);
 
-        $publications = $user->getPublications()->getValues();
+        $ids = $this->getDoctrine()
+            ->getRepository(Authors::class)
+            ->findBy([
+                "author_id" => $user->getId()
+            ]);
 
-        foreach ($publications as $obj) {
-            dump($obj);
+        $publications = [];
+        
+        foreach($ids as $id) {
+            $pub = $this->getDoctrine()
+                ->getRepository(Publication::class)
+                ->findOneBy(["id" => $id->getPublicationId()]);
+            $publications[] = $pub;
         }
 
         return $this->render('profile/my_publications.html.twig', [
@@ -49,7 +59,6 @@ class ProfileController extends AbstractController
      */
     public function editProfile(Request $request, UserPasswordEncoderInterface $passwordEncoder, int $id, Security $security)
     {
-        // 1) build the form
         $user = $this->getDoctrine()
             ->getRepository(User::class)
             ->find($id);
@@ -68,28 +77,31 @@ class ProfileController extends AbstractController
             $user = new User();
         }
 
+        $oldPass = $user->getPassword();
+
         $form = $this->createForm(UserType::class, $user, [
             'show_role' => ($security->getUser()->getRole() === "admin"),
             'role' => $user->getRole(),
             'edit_profile' => $edit_profile,
+            'password' => $user->getPassword(),
         ]);
 
-        // 2) handle the submit (will only happen on POST)
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // 3) Encode the password (you could also do this via Doctrine listener)
-            $password = $passwordEncoder->encodePassword($user, $user->getPassword());
-            $user->setPassword($password);
-            $user->setRole($user->getRole());
+            if($edit_profile) {
+                if($user->getPassword() !== "") {
+                    $password = $passwordEncoder->encodePassword($user, $user->getPassword());
+                    $user->setPassword($password);
+                    $user->setRole($user->getRole());
+                }else{
+                    $user->setPassword($oldPass);
+                }
+            }
 
-            // 4) save the User!
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
-
-            // ... do any other work - like sending them an email, etc
-            // maybe set a "flash" success message for the user
 
             return $this->redirectToRoute('home');
         }

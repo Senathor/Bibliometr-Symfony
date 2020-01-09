@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Publication;
 use App\Entity\User;
+use App\Entity\Authors;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -23,14 +24,18 @@ class PublicationRepository extends ServiceEntityRepository
     /**
      * @return User[] Returns an array of User objects
      */
-    public function findByUserID($value)
+    public function deleteIfNotAuthors()
     {
-        return $this->createQueryBuilder('u')
-            ->where(':val MEMBER OF u.users')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getResult()
-        ;
+        $del = $this->createQueryBuilder('p')->join(Authors::class, 'au', 'WITH', "p.id = au.publication_id")->getQuery()->getResult();
+        $q = $this->createQueryBuilder('p')->delete();
+        $ids = [];
+        foreach($del as $id) {
+            $ids[] = $id->getId();
+        }
+        $q->where(
+            $q->expr()->notIn('p.id', $ids)
+        );
+        $q->getQuery()->getResult();
     }
 
     /**
@@ -52,12 +57,26 @@ class PublicationRepository extends ServiceEntityRepository
         $ids = isset($value->ids) ? $value->ids : null;
 
         $qb = $this->createQueryBuilder('p')->select('p');
+        if ($authors) {
+            $qb->join(Authors::class, 'au', 'WITH', "p.id = au.publication_id");
+            $ids = [];
+            $aus = preg_split('~,\s*~', $authors);
+            if(!is_array($aus)) {
+                $aus = [$aus];
+            }
+            foreach($aus as $au) {
+                $user = $this->getEntityManager()->getRepository(User::class)->findByName($au);
+                foreach($user as $i) {
+                    $ids[] = $i->getId();
+                }
+            }
+            $qb->andWhere(
+                $qb->expr()->in('au.author_id', $ids)
+            );
+        }
 
         if ($title) {
             $qb->andWhere("p.title LIKE :title")->setParameter('title', '%' . $title . '%');
-        }
-        if ($authors) {
-            $qb->andWhere("p.authors LIKE :authors")->setParameter('authors', '%' . $authors . '%');
         }
         if ($shares) {
             $qb->andWhere("p.shares LIKE :shares")->setParameter('shares', '%' . $shares . '%');
@@ -66,10 +85,10 @@ class PublicationRepository extends ServiceEntityRepository
             $qb->andWhere("p.points = :points")->setParameter('points', $points);
         }
         if ($magazine) {
-            $qb->andWhere("p.magazine = :magazine")->setParameter('magazine', $magazine);
+            $qb->andWhere("p.magazine LIKE :magazine")->setParameter('magazine', '%'.$magazine.'%');
         }
         if ($conference) {
-            $qb->andWhere("p.conference = :conference")->setParameter('conference', $conference);
+            $qb->andWhere("p.conference LIKE :conference")->setParameter('conference', '%'.$conference.'%');
         }
         if ($url) {
             $qb->andWhere("p.url = :url")->setParameter('url', $url);

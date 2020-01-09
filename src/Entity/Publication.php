@@ -25,11 +25,6 @@ class Publication
     private $title;
 
     /**
-     * @ORM\Column(type="string", length=512)
-     */
-    private $authors;
-
-    /**
      * @ORM\Column(type="datetime")
      * @var datetime A "Y-m-d" formatted value
      */
@@ -38,11 +33,6 @@ class Publication
      * @ORM\Column(type="string", nullable=true)
      */
     private $timezone;
-
-    /**
-     * @ORM\Column(type="string", length=512)
-     */
-    private $shares;
 
     /**
      * @ORM\Column(type="integer")
@@ -64,47 +54,11 @@ class Publication
      */
     private $url;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="publications", orphanRemoval=true)
-     * @ORM\JoinTable(name="publications_list")
-     */
-    private $users = [];
-
     public function __construct()
     {
         $this->users = new ArrayCollection();
     }
 
-    public function getUsers()
-    {
-        return $this->users;
-    }
-
-    public function addUsers(?User $users): self
-    {
-        $usrs = is_array($this->users) ? $this->users : $this->users->toArray();
-        if (in_array($users, $usrs)) {
-            return $this;
-        }
-
-        $this->users[] = $users;
-        $users->addPublications($this);
-
-        return $this;
-    }
-
-    public function removeUsers(?User $users): self
-    {
-        $usrs = is_array($this->users) ? $this->users : $this->users->toArray();
-        if (!in_array($users, $usrs)) {
-            return $this;
-        }
-
-        $this->users->removeElement($users);
-        $users->removePublications($this);
-
-        return $this;
-    }
 
     public function clearUsers(): self
     {
@@ -130,17 +84,6 @@ class Publication
         return $this;
     }
 
-    public function getAuthors(): ?string
-    {
-        return $this->authors;
-    }
-
-    public function setAuthors(string $authors): self
-    {
-        $this->authors = $authors;
-
-        return $this;
-    }
 
     public function getPublicationDate(): ?\DateTimeInterface
     {
@@ -149,24 +92,12 @@ class Publication
 
     public function getTimezone(): ?string
     {
-        return $this->publication_date->getTimeZone()->getName();;
+        return $this->publication_date->getTimeZone()->getName();
     }
 
     public function setPublicationDate(\DateTimeInterface $publication_date): self
     {
         $this->publication_date = $publication_date;
-
-        return $this;
-    }
-
-    public function getShares(): ?string
-    {
-        return $this->shares;
-    }
-
-    public function setShares(string $shares): self
-    {
-        $this->shares = $shares;
 
         return $this;
     }

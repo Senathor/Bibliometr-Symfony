@@ -44,48 +44,6 @@ class User implements UserInterface
      */
     private $role;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Publication", inversedBy="users", orphanRemoval=true)
-     * @ORM\JoinTable(name="publications_list")
-     */
-    private $publications;
-
-    public function getPublications()
-    {
-        return $this->publications;
-    }
-
-    public function addPublications(?Publication $publications): self
-    {
-        $pubs = is_array($this->publications) ? $this->publications : $this->publications->toArray();
-        if (in_array($publications, $pubs)) {
-            return $this;
-        }
-
-        $this->publications[] = $publications;
-        $publications->addUsers($this);
-
-        return $this;
-    }
-
-    public function removePublications(?Publication $publications): self
-    {
-        $pubs = is_array($this->publications) ? $this->publications : $this->publications->toArray();
-        if (in_array($publications, $pubs)) {
-            return $this;
-        }
-
-        $this->publications->removeElement($publications);
-        // $publications->removeUsers($this);
-
-        return $this;
-    }
-
-    public function clearPublications(): self
-    {
-        $this->publications = [];
-        return $this;
-    }
 
     public function getId(): ?int
     {

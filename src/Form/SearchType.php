@@ -25,13 +25,15 @@ class SearchType extends AbstractType
                 ])
             ->add('authors', TextType::class,
                 [
-                    'label' => 'Autorzy',
+                    'label' => 'Autor',
                     'required' => false,
+                    "mapped" => false
                 ])
             ->add('shares', TextType::class,
                 [
                     'label' => 'Udziały',
                     'required' => false,
+                    "mapped" => false
                 ])
             ->add('points', NumberType::class,
                 [

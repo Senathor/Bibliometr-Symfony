@@ -62,10 +62,10 @@
 						<div class="divTableCell">Punkty ministerialne</div>
 					{% endif %}
 					{% if magazinebox %}
-						<div class="divTableCell">Konferencja</div>
+						<div class="divTableCell">Czasopismo</div>
 					{% endif %}
 					{% if conferencebox %}
-						<div class="divTableCell">Czasopismo</div>
+						<div class="divTableCell">Konferencja</div>
 					{% endif %}
 					{% if urlbox %}
 						<div class="divTableCell">URL/DOI</div>
@@ -98,10 +98,10 @@
 						</div>
 					{% endif %}
 					{% if authorbox %}
-						<div class="divTableCell">{{ pub.getAuthors() }}</div>
+						<div class="divTableCell">{{ pub | AuthorsAsLink }}</div>
 					{% endif %}
 					{% if sharesbox %}
-						<div class="divTableCell">{{ pub.getShares() }}</div>
+						<div class="divTableCell">{{ pub | Shares }}</div>
 					{% endif %}
 					{% if databox %}
 						<div class="divTableCell">{{ pub.getPublicationDate().format('Y-m-d H:i:s') }}</div>
@@ -122,8 +122,8 @@
 					{% endif %}
 					{% if app.user %}
 						<div class="divTableCell">
-							{% set authors = pub.getAuthors() | split(",") %}
-							{% if authors[0] == app.user.username or app.user.role == "admin" %}
+							{% set author = pub | IsAuthor %}
+							{% if author == app.user.id or app.user.role == "admin" %}
 								<a href="{{ path('editPublication', { 'id': pub.getId() }) }}">Edytuj</a>
 							{% endif %}
 						</div>
@@ -138,8 +138,8 @@
 					<div class="divTableCell">
 						<a href="{{ path('viewPublication', { 'id': pub.getId() }) }}">{{ pub.getTitle() }}</a>
 					</div>
-					<div class="divTableCell">{{ pub.getAuthors() }}</div>
-					<div class="divTableCell">{{ pub.getShares() }}</div>
+					<div class="divTableCell">{{ pub | AuthorsAsLink }}</div>
+					<div class="divTableCell">{{ pub | Shares }}</div>
 					<div class="divTableCell">{{ pub.getPublicationDate().format('Y-m-d') }}</div>
 					<div class="divTableCell">{{ pub.getPoints() }}</div>
 					<div class="divTableCell">{{ pub.getConference() }}</div>
@@ -149,8 +149,8 @@
 					</div>
 					{% if app.user %}
 						<div class="divTableCell">
-							{% set authors = pub.getAuthors() | split(",") %}
-							{% if authors[0] == app.user.username or app.user.role == "admin" %}
+							{% set author = pub | IsAuthor %}
+							{% if author == app.user.id or app.user.role == "admin" %}
 								<a href="{{ path('editPublication', { 'id': pub.getId() }) }}">Edytuj</a>
 							{% endif %}
 						</div>

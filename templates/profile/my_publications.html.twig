@@ -16,11 +16,11 @@
 					<p>Tytuł:
 						{{ pub.getTitle() }}</p>
 					<p>Autorzy:
-						{{ pub.getAuthors() }}</p>
+						{{ pub | AuthorsAsLink }}</p>
 					<p>Data publikacji:
 						{{ pub.getPublicationDate().format('Y-m-d H:i:s') }}</p>
 					<p>Udziały:
-						{{ pub.getShares() }}</p>
+						{{ pub | Shares }}</p>
 					<p>Punkty ministerialne:
 						{{ pub.getPoints() }}</p>
 					<p>Czasopismo:
@@ -30,6 +30,19 @@
 					<p>URL:
 						<a href="{{ pub.getUrl()}}">{{ pub.getUrl() }}</a>
 					</p>
+					{% if app.user %}
+						<p>
+							{% set author = pub | IsAuthor %}
+							{% if author == app.user.id or app.user.role == "admin" %}
+								<a href="{{ path('editPublication', { 'id': pub.getId() }) }}">Edytuj</a>
+							{% endif %}
+						</p>
+						<p>
+							{% if app.user.role == "admin" %}
+								<a href="{{ path('deletePublication', { 'id': pub.getId() }) }}">Usuń</a>
+							{% endif %}
+						</p>
+					{% endif %}
 				</div>
 			{% endfor %}
 		</div>

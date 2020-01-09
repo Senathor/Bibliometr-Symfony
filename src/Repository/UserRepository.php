@@ -23,11 +23,11 @@ class UserRepository extends ServiceEntityRepository
     /**
      * @return Publication[] Returns an array of User objects
      */
-    public function findByPublicationsID($value)
+    public function findByName($value)
     {
-        return $this->createQueryBuilder('p')
-            ->where(':val MEMBER OF p.publications')
-            ->setParameter('val', $value)
+        return $this->createQueryBuilder('u')
+            ->where('u.name LIKE :val')
+            ->setParameter('val', '%'.$value.'%')
             ->getQuery()
             ->getResult()
         ;

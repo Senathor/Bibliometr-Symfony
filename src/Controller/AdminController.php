@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Publication;
+use App\Entity\Authors;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,8 +40,9 @@ class AdminController extends AbstractController
     public function deleteUser(int $id)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $user = $entityManager->getRepository(User::class)->find($id);
-        $pubs = $entityManager->getRepository(Publication::class)->findByUserID($id);
+        $user = $entityManager->getRepository(User::class)->findOneBy(["id" => $id]);
+        $auth = $entityManager->getRepository(Authors::class);
+        $pub = $entityManager->getRepository(Publication::class);
 
         if (!$user) {
             return $this->render('error.html.twig', [
@@ -48,13 +50,9 @@ class AdminController extends AbstractController
             ]);
         }
 
-        if ($pubs) {
-            foreach ($pubs as $pub) {
-                $entityManager->getConnection()->executeQuery("DELETE FROM publications_list WHERE user_id = '{$user->getId()}'");
-            }
-        }
+        $auth->deleteByUserId($user->getId());
+        $pub->deleteIfNotAuthors();
 
-        $user->clearPublications();
         $entityManager->remove($user);
         $entityManager->flush();
 
@@ -70,6 +68,7 @@ class AdminController extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $publication = $entityManager->getRepository(Publication::class)->find($id);
+        $auth = $entityManager->getRepository(Authors::class);
 
         if (!$publication) {
             return $this->render('error.html.twig', [
@@ -77,7 +76,9 @@ class AdminController extends AbstractController
             ]);
         }
 
-        $publication->clearUsers();
+
+        $auth->deleteByPublicationId($id);
+
         $entityManager->remove($publication);
         $entityManager->flush();
 

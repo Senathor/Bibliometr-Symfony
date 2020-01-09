@@ -2,6 +2,8 @@
 namespace App\Controller;
 
 use App\Entity\Publication;
+use App\Entity\Authors;
+use App\Entity\User;
 use App\Form\SearchType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +19,10 @@ class AppController extends AbstractController
         $publications = $this->getDoctrine()
             ->getRepository(Publication::class)
             ->findAll();
+        $authorsRepo = $this->getDoctrine()
+            ->getRepository(Authors::class);
+        $usersRepo = $this->getDoctrine()
+            ->getRepository(User::class);
         $pub = new Publication();
 
         $form = $this->createForm(SearchType::class, $pub, ['method' => "POST"]);
@@ -126,7 +132,35 @@ class AppController extends AbstractController
                     $tableR->addRow();
                     foreach ($tableNames as $nvm => $tableBox) {
                         foreach ($tableBox as $boxs => $fullName) {
-                            $val = $pub->{$boxs}();
+                            $val = null;
+                            if($boxs === "getAuthors") {
+                                $puba = $authorsRepo->findBy([
+                                    "publication_id" => $pub->getId()
+                                ]);
+
+                                $res = [];
+
+                                foreach($puba as $p) {
+                                    $user = $usersRepo->find($p->getAuthorId());
+                                    $res[] = $user->getName();
+                                }
+                                $val = implode(", ", $res);
+                            } elseif($boxs === "getShares") {
+                                $puba = $authorsRepo->findBy([
+                                    "publication_id" => $pub->getId()
+                                ]);
+                        
+                                $res = [];
+                        
+                                foreach($puba as $p) {
+                                    $user = $usersRepo->find($p->getAuthorId());
+                                    $res[] = $user->getName() . ": " . $p->getShare();
+                                }
+                                $val = implode(", ", $res);
+                            }else{
+                                $val = $pub->{$boxs}();
+                            }
+
                             $tableR->addCell()->addText(htmlspecialchars($val));
                         }
                     }

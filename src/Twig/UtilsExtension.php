@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Entity\Authors;
 use App\Entity\User;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -19,32 +20,85 @@ class UtilsExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            // If your filter generates SAFE HTML, you should add a third
-            // parameter: ['is_safe' => ['html']]
-            // Reference: https://twig.symfony.com/doc/2.x/advanced.html#automatic-escaping
-            new TwigFilter('AuthorsAsLinks', [$this, 'AuthorsAsLinks']),
+            new TwigFilter('Authors', [$this, 'Authors']),
+            new TwigFilter('AuthorsAsLink', [$this, 'AuthorsAsLink'], ['is_safe' => ['html']]),
+            new TwigFilter('Shares', [$this, 'Shares']),
+            new TwigFilter('IsAuthor', [$this, 'IsAuthor']),
         ];
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('AuthorsAsLinks', [$this, 'AuthorsAsLinks']),
+            new TwigFunction('Authors', [$this, 'Authors']),
+            new TwigFunction('AuthorsAsLink', [$this, 'AuthorsAsLink'], ['is_safe' => ['html']]),
+            new TwigFunction('Shares', [$this, 'Shares']),
+            new TwigFunction('IsAuthor', [$this, 'IsAuthor']),
         ];
     }
 
-    public function AuthorsAsLinks($value)
+    public function Authors($value)
     {
-        $auth = explode(",", $value);
+        $id = $value->getId();
+        $pub = $this->em->getRepository(Authors::class)->findBy([
+            "publication_id" => $id
+        ]);
+        
         $res = [];
-        foreach ($auth as $usr) {
-            $user = $this->em->getRepository(User::class)->findOneBy([
-                "name" => $usr,
-            ]);
-            $res[] = '<a href="my_publications/' . $user->getId() . '">' . $user->getName() . '</a>';
-            // $res[] = [$usr => $user->getId()];
+
+        foreach($pub as $p) {
+            $user = $this->em->getRepository(User::class)->find($p->getAuthorId());
+            $res[] = $user->getName();
         }
-        return $res;
-        // return implode(", ", $res);
+        return implode(", ", $res);
+    }
+
+    public function AuthorsAsLink($value)
+    {
+        $id = $value->getId();
+        $pub = $this->em->getRepository(Authors::class)->findBy([
+            "publication_id" => $id
+        ]);
+        
+        $res = [];
+
+        foreach($pub as $p) {
+            $user = $this->em->getRepository(User::class)->findOneBy(['id' => $p->getAuthorId()]);
+            if($user) {
+                $res[] = "<a href='/public/my_publications/".$user->getId()."'>".$user->getName()."</a>";
+            }
+        }
+        return implode(", ", $res);
+    }
+
+    public function Shares($value)
+    {
+        $id = $value->getId();
+        $pub = $this->em->getRepository(Authors::class)->findBy([
+            "publication_id" => $id
+        ]);
+
+        $res = [];
+
+        foreach($pub as $p) {
+            $user = $this->em->getRepository(User::class)->find($p->getAuthorId());
+            $res[] = $user->getName() . ": " . $p->getShare();
+        }
+        return implode(", ", $res);
+    }
+
+    public function IsAuthor($value)
+    {
+        $id = $value->getId();
+        $pub = $this->em->getRepository(Authors::class)->findOneBy([
+            "publication_id" => $id,
+            "is_author" => true
+        ]);
+
+        if($pub === null) {
+            return 0;
+        }
+
+        return $pub->getAuthorId();
     }
 }
